@@ -33,6 +33,7 @@ class MoviesController < ApplicationController
       flash.keep
       redirect_to :sort => sort, :ratings => @selected_ratings and return
     end
+    
     @movies = Movie.find_all_by_rating(@selected_ratings.keys, ordering)
   end
 
@@ -42,6 +43,7 @@ class MoviesController < ApplicationController
 
   def create
     @movie = Movie.create!(params[:movie])
+
     flash[:notice] = "#{@movie.title} was successfully created."
     redirect_to movies_path
   end
@@ -63,5 +65,17 @@ class MoviesController < ApplicationController
     flash[:notice] = "Movie '#{@movie.title}' deleted."
     redirect_to movies_path
   end
-
+  
+  def find_similar_movies
+    # debugger
+    puts Movie.find(params[:id]).director
+    @movies = Movie.other_movies_by_same_director(Movie.find(params[:id]))
+    
+    # @movies = Movie.find_all_by_director(Movie.find(params[:id]).director)
+    # debugger
+    if @movies.empty?
+      flash[:notice] = "'#{Movie.find(params[:id]).title}' has no director info"
+      redirect_to movies_path
+    end
+  end
 end
